@@ -6,8 +6,9 @@ using UnityEngine;
 public class Card : MonoBehaviour 
 {
     // TODO: pull the stats and functionality from somewhere else
-    public int energyUse = 5;
-    public int cooldown = 1;
+    private int energyUse = 5;
+    private int cooldown = 1;
+    private int damage = 33;
 
     private int slot = -1;
     private Actor owner;
@@ -149,6 +150,8 @@ public class Card : MonoBehaviour
 
         // consume energy from the user
         owner.ConsumeEnergy(energyUse);
+
+        target.RecieveDamage(damage);
 
         if(cooldown > 0)
         {

@@ -55,4 +55,14 @@ public class Actor : MonoBehaviour
         return amountConsumed;
     }
 
+    public void RecieveDamage(int damageAmount)
+    {
+        health = Mathf.Max(health - damageAmount, 0);
+
+        if(health == 0)
+        {
+            // TODO: died
+        }
+    }
+
 }

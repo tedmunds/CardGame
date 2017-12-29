@@ -19,6 +19,9 @@ public class Battle : MonoBehaviour
 
     [SerializeField]
     private GameObject actorPrototype = null;
+
+    [SerializeField]
+    private GameObject healthBarPrototype = null;
     
     private ActorSlot[] actorSlots;
 
@@ -70,7 +73,8 @@ public class Battle : MonoBehaviour
     private void InitBattle()
     {
         // TODO: initialize the battle from the location node data?
-        InitActor(1, BattleTeam.Opponent);
+        Actor opponent = InitActor(1, BattleTeam.Opponent);
+        AddHealthBarForActor(opponent, healthBarPrototype);
     }
 
 
@@ -120,14 +124,40 @@ public class Battle : MonoBehaviour
     {
         Debug.Log("Player turn end...");
 
+        // Firs process card effects before the enemies turn actually starts
         foreach(Card card in player.GetDeck().Cards())
         {
             card.ProcessTurn();
         }
 
-        foreach(Actor a in actors)
+        // First the opponents start their turn
+        foreach(Actor a in Opponents())
         {
             a.OnTurnStart();
+        }
+
+        // TODO: a time delay for animations and stuff to callback when the enemy turn is actually over
+
+        // Then the players actors start their turn
+        foreach(Actor a in Friendly())
+        {
+            a.OnTurnStart();
+        }
+    }
+
+
+    public void AddHealthBarForActor(Actor a, GameObject healthBarProto)
+    {
+        if(a == null || healthBarProto == null)
+        {
+            return;
+        }
+
+        GameObject hpBar = Instantiate(healthBarProto, FindObjectOfType<Canvas>().transform);
+        var healthBarInst = hpBar.GetComponent<ActorHealthBar>();
+        if(healthBarInst != null)
+        {
+            healthBarInst.SetForActor(a);
         }
     }
 }

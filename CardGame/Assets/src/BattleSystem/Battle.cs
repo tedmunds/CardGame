@@ -11,6 +11,14 @@ public enum BattleTeam
     Opponent
 }
 
+public enum BattleEndState
+{
+    Victory,
+    Death,
+    Failure // Maybe?
+}
+
+
 
 [RequireComponent(typeof(Player))]
 public class Battle : MonoBehaviour
@@ -29,6 +37,7 @@ public class Battle : MonoBehaviour
     private List<Actor> actors = new List<Actor>();
 
     private Player player;
+    private List<Enemy> enemies = new List<Enemy>();
     
 	public void Start()
     {
@@ -73,8 +82,19 @@ public class Battle : MonoBehaviour
     private void InitBattle()
     {
         // TODO: initialize the battle from the location node data?
-        Actor opponent = InitActor(1, BattleTeam.Opponent);
-        AddHealthBarForActor(opponent, healthBarPrototype);
+        for(int i = 0; i < 2; i++)
+        {
+            Actor opponent = InitActor(i + 1, BattleTeam.Opponent);
+            AddHealthBarForActor(opponent, healthBarPrototype);
+
+            opponent.onDeath += OnOpponentKilled;
+
+            Enemy e = opponent.gameObject.AddComponent<Enemy>();
+            enemies.Add(e);
+
+            // the enemy controlls this actor
+            e.OnSpawn(opponent);
+        }
     }
 
 
@@ -120,6 +140,24 @@ public class Battle : MonoBehaviour
     }
 
 
+    public void OnOpponentKilled(Actor killed)
+    {
+        bool opponentsAreAlive = false;
+        foreach(Actor opponent in Opponents())
+        {
+            if(!opponent.isDead)
+            {
+                opponentsAreAlive = true;
+            }
+        }
+
+        if(!opponentsAreAlive)
+        {
+            EndBattle(BattleEndState.Victory);
+        }
+    }
+
+
     public void PlayerEndTurn()
     {
         Debug.Log("Player turn end...");
@@ -143,6 +181,23 @@ public class Battle : MonoBehaviour
         {
             a.OnTurnStart();
         }
+    }
+
+
+    public void EndBattle(BattleEndState endState)
+    {
+        switch(endState)
+        {
+            case BattleEndState.Victory:
+                Debug.Log("You've won the battle!");
+                break;
+            case BattleEndState.Death:
+                Debug.Log("You've been killed in brutal combat!");
+                break;
+        }
+        
+        // TODO: clean up and go to overworld, or not I guess if you died? go back to "bonfire" in that case I guess
+        // Give awards and stuff
     }
 
 

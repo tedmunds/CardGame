@@ -1,0 +1,84 @@
+
+
+// Crazy lisp style definitions wher you actually program the abilities right in the file
+
+PowerAttack
+	name Power Attack
+	energy 5
+	cooldown 2
+	tags (Attack)
+	
+	image Card_PowerAttack
+	desc "A powerful attack that deals %f damage"
+		((* 30 user.strength))
+	
+	select SelectOpponentSingle
+	
+	do 
+		(damage target physical (* 30 user.strength))
+		
+HundredBlades
+	name Hundred Blades
+	energy 10
+	cooldown 5
+	tags (Skill)
+	
+	image Card_HundredBlades
+	desc "Your next attack this turn hits all enemies adjecent to your target"
+		
+	select PlayerSelf
+	
+	do 
+		(affect ((Attack) 1 1) (select (adjascent target)))
+		
+		
+// A much more conservative format that basically just names effects to apply in immediate stage or post stage
+
+PowerAttack
+	name Power Attack
+	energy 5
+	cooldown 2
+	tags (Attack)
+	
+	image Card_PowerAttack
+	desc "A powerful attack that deals {phys_attack 30} damage"
+	
+	select SelectOpponentSingle
+	
+	// immediate is called right in the activated function
+	// the function phys_attack already knows how many params it needs and to apply strength bonus or whatever
+	immediate
+		phys_attack 30
+		
+HundredBlades
+	name Hundred Blades
+	energy 10
+	cooldown 5
+	tags (Skill)
+	
+	image Card_HundredBlades
+	desc "Your next attack this turn hits all enemies adjecent to your target"
+		
+	select PlayerSelf
+	
+	// effects can be added as well as immediates, and are delegates that are put on the stack with triggers
+	effect
+		// two functions, the second is the param for the first. This is just implicit cause thats how the next_attack function is set up internally
+		next_attack add_target_adj
+		
+		// if the above was found to be OP it could also be set up as follows to just to 10 damage to adjacent target
+		next_attack (phys_attack 10)
+	
+	
+
+
+
+
+
+
+
+	
+	
+	
+	
+		

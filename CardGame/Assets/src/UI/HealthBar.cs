@@ -6,6 +6,9 @@ using UnityEngine.UI;
 [RequireComponent(typeof(Image))]
 public class HealthBar : MonoBehaviour 
 {
+    [SerializeField]
+    private Text textField = null;
+
     private Image fillImage;
     private Actor player;
 
@@ -23,6 +26,7 @@ public class HealthBar : MonoBehaviour
         else
         {
             fillImage.fillAmount = (float)player.health / (float)player.maxHealth;
+            textField.text = player.health + " / " + player.maxHealth;
         }
     }
 }

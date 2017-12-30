@@ -5,13 +5,10 @@ using UnityEngine;
 [RequireComponent(typeof(SpriteRenderer))]
 public class Card : MonoBehaviour 
 {
-    // TODO: pull the stats and functionality from somewhere else
-    private int energyUse = 5;
-    private int cooldown = 1;
-    private int damage = 33;
-
     private int slot = -1;
     private Actor owner;
+
+    private Ability cardAbility;
 
     private SpriteRenderer cardSprite;
     private Vector3 cardBaseScale;
@@ -33,6 +30,9 @@ public class Card : MonoBehaviour
         cardBaseScale = transform.localScale;
         slotLocation = transform.position;
         cardSprite = GetComponent<SpriteRenderer>();
+
+        // TEMP: 
+        cardAbility = new Ability();
     }
 	
 	protected virtual void Update() 
@@ -109,7 +109,7 @@ public class Card : MonoBehaviour
 
     public List<Actor> GetValidTargets()
     {
-        var targets = new List<Actor>();
+        var targets = new List<Actor>();      
         targets.AddRange(Battle.instance.Opponents());
         return targets;
     }
@@ -117,45 +117,26 @@ public class Card : MonoBehaviour
 
     private void OnCardReleased()
     {
-        Actor bestTarget = null;
-        float bestDist = float.MaxValue;
-        foreach(Actor target in GetValidTargets())
-        {
-            float dist = (transform.position - target.transform.position).magnitude;
-            if(dist < bestDist)
-            {
-                bestDist = dist;
-                bestTarget = target;
-            }
-        }
-
-        if(bestTarget == null)
-        {
-            return;
-        }
-
         // Check useage requirements
-        if(owner.energy < energyUse)
+        if(owner.energy < cardAbility.energyUse)
         {
             return;
         }
 
-        Activate(bestTarget);
+        Activate(cardAbility.GetValidTargets(transform.position));
     }
     
 
-    public void Activate(Actor target)
+    public void Activate(Actor[] targets)
     {
-        Debug.Log(slot + " used on " + target.name);
-
         // consume energy from the user
-        owner.ConsumeEnergy(energyUse);
+        owner.ConsumeEnergy(cardAbility.energyUse);
+        
+        cardAbility.Activated(owner, targets);
 
-        target.RecieveDamage(damage);
-
-        if(cooldown > 0)
+        if(cardAbility.cooldown > 0)
         {
-            cooldownRemaining = cooldown;
+            cooldownRemaining = cardAbility.cooldown;
         }
         
         if(cooldownRemaining.IsValid)

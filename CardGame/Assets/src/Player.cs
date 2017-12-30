@@ -17,10 +17,18 @@ public class Player : MonoBehaviour
         this.playerActor = playerActor;
         activeDeck = Instantiate(deckPrototype);
         activeDeck.Init(playerActor);
+
+        playerActor.onDeath += PlayerDied;
     }
 	
 	protected virtual void Update() 
 	{
 		
 	}
+
+
+    public void PlayerDied(Actor killed)
+    {
+        Battle.instance.EndBattle(BattleEndState.Death);
+    }
 }

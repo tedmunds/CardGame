@@ -45,6 +45,12 @@ public class ActorHealthBar : MonoBehaviour
             return;
         }
 
+        // dont need a health bar when your dead
+        if(actor.isDead)
+        {
+            Destroy(gameObject);
+        }
+
         fillImage.fillAmount = (float)actor.health / (float)actor.maxHealth;
         if(valueField != null)
         {
